@@ -73,17 +73,7 @@ class PipelineError(Exception):
 
 NUM_LABELS = 4
 CLASS_NAMES = {0: "none", 1: "partial_lt50", 2: "mostly", 3: "full"}
-
-
-def app_dir() -> Path:
-    """Folder the settings file lives in: next to the .exe when packaged
-    (PyInstaller), otherwise next to this script."""
-    if getattr(sys, "frozen", False):
-        return Path(sys.executable).resolve().parent
-    return Path(__file__).resolve().parent
-
-
-SETTINGS_PATH = app_dir() / "wrap_pipeline_settings.json"
+SETTINGS_PATH = Path(__file__).resolve().with_name("wrap_pipeline_settings.json")
 
 BACKBONES = ["google/vit-base-patch16-224-in21k", "facebook/convnext-tiny-224",
              "microsoft/resnet-18", "facebook/dinov2-small"]
@@ -2100,20 +2090,12 @@ def pick_device(L) -> str:
 
 def _training_args(L, out: Path, lr: float, epochs: int, device: str, seed: int):
     """Shared Trainer settings: evaluate/checkpoint each epoch, keep best qwk."""
-    import dataclasses
-    fields = {f.name for f in dataclasses.fields(L.TrainingArguments)}
-    # 10% warm-up: transformers 5 dropped warmup_ratio (warmup_steps < 1 is a ratio
-    # there); before 4.41 eval_strategy was called evaluation_strategy
-    version_args = {
-        ("warmup_ratio" if "warmup_ratio" in fields else "warmup_steps"): 0.1,
-        ("eval_strategy" if "eval_strategy" in fields else "evaluation_strategy"): "epoch",
-    }
     return L.TrainingArguments(
         output_dir=str(out),
         per_device_train_batch_size=config.BATCH_SIZE,
         per_device_eval_batch_size=config.BATCH_SIZE,
-        learning_rate=lr, num_train_epochs=epochs, **version_args,
-        save_strategy="epoch", save_total_limit=2,
+        learning_rate=lr, warmup_ratio=0.1, num_train_epochs=epochs,
+        eval_strategy="epoch", save_strategy="epoch", save_total_limit=2,
         load_best_model_at_end=True, metric_for_best_model="qwk", greater_is_better=True,
         logging_steps=25, report_to="none", remove_unused_columns=False,
         fp16=(device == "cuda"), seed=seed)
@@ -3797,6 +3779,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    import multiprocessing
-    multiprocessing.freeze_support()     # needed by the packaged Windows app
     main()

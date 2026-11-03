@@ -42,7 +42,6 @@ Everything runs from one settings window, or from the command line with saved se
 9. [Output reference](#9-output-reference)
 10. [Typical workflows](#10-typical-workflows)
 11. [Troubleshooting](#11-troubleshooting)
-12. [Running it as an application](#12-running-it-as-an-application)
 
 ---
 
@@ -69,7 +68,7 @@ python Myelination.py
 
 This opens the **settings window**. Choose what to run, then press **Run ▶**. The window closes and progress prints in the console. When the run ends, the console waits for Enter before closing.
 
-Settings are kept in **`wrap_pipeline_settings.json`**, next to the script (or next to `Myelination.exe` in the [packaged app](#12-running-it-as-an-application)). They are saved whenever you press **Run ▶** or **Save settings**, and loaded the next time you start. Settings missing from that file take their default values. Unknown entries are ignored.
+Settings are kept in **`wrap_pipeline_settings.json`**, next to the script. They are saved whenever you press **Run ▶** or **Save settings**, and loaded the next time you start. Settings missing from that file take their default values. Unknown entries are ignored.
 
 To run without the window, see [Command line](#8-command-line).
 
@@ -696,51 +695,3 @@ nuclei/_count_nuclei.ijm, _fiji_jobs.tsv, _fiji_done.txt   (working files for th
 | Fiji opens and stops on an error | Usually StarDist or CSBDeep is missing: enable both update sites and restart Fiji. Close Fiji and rerun; MIPs are reused. |
 | *skipped: no pixel size* in the nuclei summary | Re-extract that LIF (this writes `calibration.json`), or set *Fallback pixel size (um)*. |
 | The labelling window doesn't respond to keys | Click on it once to give it keyboard focus. |
-
----
-
-## 12. Running it as an application
-
-`build_app.bat` sets everything up for you. It finds or installs Python, installs every library into a private environment (`python_env`), and builds `Myelination.exe`. You don't need to install anything by hand first.
-
-### Building `Myelination.exe`
-
-1. Put `build_app.bat` next to `Myelination.py` and **double-click it**. You need an internet connection and about 10 GB of free disk space.
-2. It works through five steps, printing each:
-
-   | Step | What happens |
-   |---|---|
-   | 1. Python | Looks for Python 3.12, 3.13, 3.11, 3.10 or 3.14 (with tkinter), in that order. If there is none, it offers to install Python 3.12 with *winget*; otherwise it points you to python.org. |
-   | 2. Environment | Creates `python_env` next to the script. It is private to this app, so your other Python setups, Anaconda included, are not touched. On later runs it is reused. |
-   | 3. PyTorch | Asks for a **GPU** or **CPU-only** build. The default is GPU if this PC has an NVIDIA card (picked after 30 s). A GPU build also runs on PCs without a GPU, just larger. A CPU build is smaller but never uses a GPU. |
-   | 4. Libraries | Installs numpy, Pillow, scipy, scikit-image, readlif, transformers, accelerate and PyInstaller, then checks they all import and prints the versions. |
-   | 5. Build | Builds `dist\Myelination\Myelination.exe` and copies your `wrap_pipeline_settings.json` in, if there is one. |
-
-3. The first run takes 15–40 minutes, mostly downloading PyTorch; later runs only rebuild the app. Keep the **whole `dist\Myelination` folder together**, because the `.exe` needs the `_internal` folder beside it. Copy it anywhere, and make a desktop shortcut to `Myelination.exe`.
-
-| Command | Does |
-|---|---|
-| `build_app.bat` | Install whatever is missing, then build. |
-| `build_app.bat setup` | Install the libraries only, without building the `.exe`. `Run_Myelination.bat` then uses them. |
-| `build_app.bat clean` | Delete `python_env`, reinstall everything from scratch (newest versions), then build. |
-
-**Settings at the top of `build_app.bat`**
-- `TORCH_CUDA`: which CUDA build of PyTorch a GPU build uses: `cu126` for older NVIDIA drivers, `cu128` (default), or `cu130` for the newest.
-- `PACKAGES`: the other libraries. To keep a library at a version that worked, write it with the version, e.g. `transformers==X.Y.Z`, then run `build_app.bat clean`.
-
-### Double-click launcher (no `.exe`)
-
-`Run_Myelination.bat`, next to `Myelination.py`, opens the settings window as `python Myelination.py` would. It uses `python_env` if `build_app.bat` has made one (`build_app.bat setup` is enough); otherwise it uses the Python on PATH. For a desktop icon, right-click it, then choose *Send to* › *Desktop (create shortcut)*. Unlike the `.exe`, it always runs your current `Myelination.py`.
-
-### How the packaged app behaves
-
-- It opens the same settings window, and the console window alongside it shows the progress.
-- Settings are saved in `wrap_pipeline_settings.json` **next to `Myelination.exe`**.
-- The command-line options work the same: `Myelination.exe --headless --mode none --nuclei`.
-- Backbone models are still downloaded from Hugging Face the first time a new backbone is used, and cached in your user folder. Trained models in your Model folder need no download.
-- Fiji is not bundled; the nuclei count uses the Fiji set on the Nuclei tab, as before.
-- To use a backbone family other than ViT, ConvNeXt, ResNet or DINOv2, add `--collect-submodules transformers.models.<family>` to `build_app.bat` and rebuild.
-- A GPU build uses the GPU only on PCs with a recent enough NVIDIA driver; otherwise it runs on the CPU. You can also set *Device* to `cpu`.
-- Rebuild after every change to `Myelination.py`; the `.exe` does not read the `.py` file.
-- If the `.exe` closes immediately, open a command prompt in its folder and run `Myelination.exe`, to keep the error on screen.
-- `python_env` is only needed for building. Keep it so rebuilds are fast, or delete it to free several GB.
