@@ -67,9 +67,9 @@ The heavy packages are imported only by the stages that use them. So you can, fo
 python Myelination.py
 ```
 
-This opens the **settings window**. Choose what to run, then press **Run ▶**. The window closes and progress prints in the console. When the run ends, the console waits for Enter before closing.
+This opens the **settings window**. Choose what to run, then press **Run**. The window closes and progress prints in the console. When the run ends, the console waits for Enter before closing.
 
-Settings are kept in **`wrap_pipeline_settings.json`**, next to the script (or next to `Myelination.exe` in the [packaged app](#12-running-it-as-an-application)). They are saved whenever you press **Run ▶** or **Save settings**, and loaded the next time you start. Settings missing from that file take their default values. Unknown entries are ignored.
+Settings are kept in **`wrap_pipeline_settings.json`**, next to the script (or next to `Myelination.exe` in the [packaged app](#12-running-it-as-an-application)). They are saved whenever you press **Run** or **Save settings**, and loaded the next time you start. Settings missing from that file take their default values. Unknown entries are ignored.
 
 To run without the window, see [Command line](#8-command-line).
 
