@@ -665,16 +665,16 @@ nuclei/_count_nuclei.ijm, _fiji_jobs.tsv, _fiji_done.txt   (working files for th
 
 **First model, from raw LIFs**
 1. Paths tab: set Root. Press *Put Crops and Results inside Root*, then set the Model folder.
-2. Run tab: choose **Train a model**. Tick A (add the LIFs), 0, 1, 2 and 3 (fresh). Press **Run ▶**.
+2. Run tab: choose **Train a model**. Tick A (add the LIFs), 0, 1, 2 and 3 (fresh). Press **Run**.
 3. Confirm the channel roles when asked. Check a few `pillar_detection/…_qc.png` images, then label in the window that opens. Close it to start training.
 
 **Label more and retrain from scratch:** Train mode, with A and 0 off. Tick 1 with *every site* on, then 2 and 3. Labelling resumes where you stopped. Cropping again does not touch your labels.
 
-**Score new data:** Score mode. Tick A and 0 for new LIFs, or neither if they are already extracted and detected. Set the Model folder to the trained model and press **Run ▶**. Read `directory_summary.csv`.
+**Score new data:** Score mode. Tick A and 0 for new LIFs, or neither if they are already extracted and detected. Set the Model folder to the trained model and press **Run**. Read `directory_summary.csv`.
 
 **Adapt a model to a new batch:** Train mode with 3 set to *continue*. Set the Parent model, a **new** Model folder, the new batch's Crops folder, and the parent's crops as *Old crops (replay)*. Tick *Continue: evaluate only* first. Train only if the "new" score is poor.
 
-**Nuclei only:** mode **Neither**. Tick N (plus A if not yet extracted), set the Fiji path on the Nuclei tab, and press **Run ▶**. From the command line: `python Myelination.py --headless --mode none --nuclei`.
+**Nuclei only:** mode **Neither**. Tick N (plus A if not yet extracted), set the Fiji path on the Nuclei tab, and press **Run**. From the command line: `python Myelination.py --headless --mode none --nuclei`.
 
 ---
 
